@@ -1,17 +1,41 @@
-#define LED1_PIN  PA0  // Đổi theo chân LED của bạn
-#define LED2_PIN  PA1  // Đổi theo chân LED của bạn
-#define LED3_PIN  PA2  // Đổi theo chân LED của bạn
-#define LED4_PIN  PA3  // Đổi theo chân LED của bạn
-#define LED5_PIN  PA4  // Đổi theo chân LED của bạn
-#define LED6_PIN  PA5  // Đổi theo chân LED của bạn
-#define LED7_PIN  PA6  // Đổi theo chân LED của bạn
-#define LED8_PIN  PA7  // Đổi theo chân LED của bạn
+#include <Arduino.h>
+#include <HardwareTimer.h>
+#include<SimpleKalmanFilter.h>
+#define LM35_PIN PB0
+#define LED_RUN PC13
+#define INTERVAL 1000000  // 1 second
+#define INTERVAL2 500000  // 0.5 second
+
+HardwareTimer Timer1(TIM1);
+HardwareTimer Timer2(TIM2);
+SimpleKalmanFilter kalman(2.0,2.0,0.01);
+
+void adcRead() {
+  int adcValue = analogRead(LM35_PIN);
+  float voltage = adcValue * (3.3 / 4095.0); 
+  float temperature = voltage * 100.0; 
+  float smoothedTemp = kalman.updateEstimate(temperature);
+  Serial.println(smoothedTemp);
+}
+
+void ngat() {
+  static bool ledState = false;
+  ledState = !ledState;  
+  digitalWrite(LED_RUN, ledState ? HIGH : LOW);
+}
+#define LED1_PIN  PA0  
+#define LED2_PIN  PA1  
+#define LED3_PIN  PA2  
+#define LED4_PIN  PA3  
+#define LED5_PIN  PA4  
+#define LED6_PIN  PA5  
+#define LED7_PIN  PA6  
+#define LED8_PIN  PA7  
 
 void setup() {
-  // Khởi tạo cổng Serial
   Serial.begin(9600);
   
-  // Cấu hình các chân LED là OUTPUT
+  
   pinMode(LED1_PIN, OUTPUT);
   pinMode(LED2_PIN, OUTPUT);
   pinMode(LED3_PIN, OUTPUT);
