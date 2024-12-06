@@ -1,14 +1,27 @@
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
-
-LiquidCrystal_I2C lcd(0x27, 16, 2); // Địa chỉ I2C (có thể thay đổi thành 0x3F hoặc khác)
-
-void setup() {
-  lcd.begin(16, 2);                // Khởi tạo LCD 16x2
-  lcd.backlight();                 // Bật đèn nền
-  lcd.print("Hello, STM32!");      // Hiển thị nội dung
+#include<HardwareTimer.h> 
+#define LED PA1
+#define INTERVAL1 1000000
+HardwareTimer Timer1(TIM1);
+void ngat1()
+{
+  int state= digitalRead(LED);
+  if(state==HIGH)
+  {
+    digitalWrite(LED,LOW);
+  }
+  else{
+    digitalWrite(LED,HIGH);
+  }
 }
-
-void loop() {
-  // Đoạn mã cho vòng lặp chính (nếu cần)
+void setup()
+{
+  pinMode(LED,OUTPUT);
+  Timer1.pause();
+  Timer1.setOverflow(INTERVAL1,MICROSEC_FORMAT);
+  Timer1.attachInterrupt(ngat1);
+  Timer1.resume();
+}
+void loop()
+{
+  
 }
