@@ -92,5 +92,11 @@ void loop() {
         default: break;
       }
     }
+     if (command.startsWith("SET_TIMER")) {
+      int newInterval = command.substring(10).toInt(); // Lấy giá trị thời gian mới (ms)
+      if (newInterval > 0) {
+        Timer1.setOverflow(newInterval * 1000, MICROSEC_FORMAT); // Đổi từ ms sang µs
+        Timer1.refresh(); // Cập nhật lại Timer1
+      }
   }
 }

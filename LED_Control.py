@@ -66,19 +66,31 @@ def read_temperature():
                 except ValueError:
                     pass
         time.sleep(0.5)
-
+# Hàm điều chỉnh thời gian Timer1
+def set_timer1_interval():
+    if ser and ser.is_open:
+        try:
+            interval_value = int(timer1_entry.get())
+            if interval_value > 0:  # Chỉ chấp nhận giá trị dương
+                command = f'TIMER1{interval_value}\n'.encode()
+                ser.write(command)
+                timer1_status_label.config(text=f"Timer1: {interval_value} ms", fg="blue")
+            else:
+                timer1_status_label.config(text="Giá trị phải lớn hơn 0!", fg="red")
+        except ValueError:
+            timer1_status_label.config(text="Lỗi: Giá trị không hợp lệ!", fg="red")
 # Giao diện Tkinter
 root = tk.Tk()
 root.title("Điều khiển LED và Động cơ với STM32")
-root.geometry("900x600")
-root.configure(bg="#f0f0f0")
+root.geometry("900x900")
+root.configure(bg="#55bcd9")
 
 # Tiêu đề
-title_label = tk.Label(root, text="CONTROL", font=("Arial", 16, "bold"), bg="#f0f0f0")
+title_label = tk.Label(root, text="CONTROL", font=("Arial", 25, "bold"), bg="#55bcd9")
 title_label.grid(row=0, column=0, columnspan=2, pady=10)
 
 # Khung điều khiển LED
-led_frame = tk.LabelFrame(root, text="Điều khiển LED", font=("Arial", 12), bg="#e0e0e0", padx=10, pady=10)
+led_frame = tk.LabelFrame(root, text="Điều khiển LED", font=("Arial", 18,"bold"), bg="#3c739e", padx=10, pady=10, fg="white")
 led_frame.grid(row=1, column=0, sticky="nw", padx=20, pady=10)
 
 status_labels = []
@@ -95,7 +107,7 @@ for i in range(1, 9):
     status_labels.append(status_label)
 
 # Khung điều khiển động cơ
-motor_frame = tk.LabelFrame(root, text="Điều khiển Động cơ", font=("Arial", 12), bg="#d0d0d0", padx=10, pady=10)
+motor_frame = tk.LabelFrame(root, text="Điều khiển Động cơ", font=("Arial", 12), bg="#f4c2d7", padx=10, pady=10)
 motor_frame.grid(row=2, column=0, sticky="nw", padx=20, pady=10)
 
 tk.Label(motor_frame, text="Tốc độ (0-100%):", bg="#d0d0d0", font=("Arial", 10)).pack(pady=5)
@@ -107,7 +119,7 @@ motor_status_label = tk.Label(motor_frame, text="Tốc độ động cơ: --%", 
 motor_status_label.pack(pady=5)
 
 # Đồ thị nhiệt độ
-graph_frame = tk.LabelFrame(root, text="Đồ thị Nhiệt độ", font=("Arial", 12), bg="#f0f0f0", padx=10, pady=10)
+graph_frame = tk.LabelFrame(root, text="Đồ thị Nhiệt độ", font=("Arial", 20,"bold"), bg="#1261a6", padx=10, pady=10)
 graph_frame.grid(row=1, column=1, rowspan=2, sticky="nsew", padx=20, pady=10)
 
 fig = Figure(figsize=(5, 4), dpi=100)
@@ -118,6 +130,17 @@ ax.set_xlabel("Thời gian (s)")
 ax.set_ylabel("Nhiệt độ (°C)")
 canvas = FigureCanvasTkAgg(fig, master=graph_frame)
 canvas.get_tk_widget().pack()
+# Khung điều chỉnh Timer1
+timer1_frame = tk.LabelFrame(root, text="Điều chỉnh Timer1", font=("Arial", 12), bg="#d2f8d2", padx=10, pady=10)
+timer1_frame.grid(row=2, column=0, sticky="nw", padx=200, pady=10)  # Sửa đổi vị trí của khung Timer1
+
+tk.Label(timer1_frame, text="Thời gian (ms):", bg="#d2f8d2", font=("Arial", 10)).pack(pady=5)
+timer1_entry = ttk.Entry(timer1_frame, width=10)
+timer1_entry.pack(pady=5)
+set_timer1_button = ttk.Button(timer1_frame, text="Cài đặt", command=set_timer1_interval)
+set_timer1_button.pack(pady=5)
+timer1_status_label = tk.Label(timer1_frame, text="Timer1: -- ms", font=("Arial", 10), fg="gray", bg="#d2f8d2")
+timer1_status_label.pack(pady=5)
 
 # Đóng kết nối serial
 def on_closing():
